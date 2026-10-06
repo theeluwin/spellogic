@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Spellogic by @theeluwin</title>
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.min.css" rel="stylesheet">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L09ENGJX9P"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-L09ENGJX9P');
+    </script>
+  </head>
+  <body>
+    <div id="app">
+      <v-app>
+        <v-main>
+          <v-container max-width="480" class="py-10">
+            <v-window v-model="page">
+              <v-window-item :value="0" :transition="false" :reverse-transition="false">
+                <v-card max-width="720" class="mx-auto" variant="flat">
+                  <v-card-title class="text-h4 font-weight-bold">
+                    Spellogic
+                  </v-card-title>
+                  <v-card-subtitle>
+                    마법 주문의 규칙을 추론하고 정답을 찾아보세요.
+                    <br />
+                    총 5문제가 준비되어 있습니다.
+                    <br />
+                    만든이: <a href="https://theeluwin.github.io" target="_blank">@theeluwin</a>
+                  </v-card-subtitle>
+                  <v-card-text>
+                    <v-card class="mb-5" variant="elevated" color="blue">
+                      <v-card-text>
+                        <p class="mb-2">
+                          <b>마법 주문</b>은 글자의 위치를 일정한 규칙에 따라 바꿉니다.
+                        </p>
+                        <v-list bg-color="transparent" density="compact" class="py-0">
+                          <v-list-item class="py-0">
+                            <v-list-item-title>
+                              루나: ABC ⮕ CBA
+                            </v-list-item-title>
+                          </v-list-item>
+                          <v-divider class="my-2"></v-divider>
+                          <v-list-item class="py-0">
+                            <v-list-item-title>
+                              루나: BAC ⮕ CAB
+                            </v-list-item-title>
+                          </v-list-item>
+                        </v-list>
+                      </v-card-text>
+                    </v-card>
+                    <v-card class="mb-5" variant="elevated" color="green">
+                      <v-card-text>
+                        <p class="mb-2">
+                          <b>마법 주문</b>을 연속으로 사용하면, 차례대로 효과가 적용됩니다.
+                        </p>
+                        <v-list bg-color="transparent" density="compact" class="py-0">
+                          <v-list-item class="py-0">
+                            <v-list-item-title>
+                              루나: ABC ⮕ CBA
+                            </v-list-item-title>
+                          </v-list-item>
+                          <v-list-item class="py-0">
+                            <v-list-item-title>
+                              테라: ABC ⮕ BCA
+                            </v-list-item-title>
+                          </v-list-item>
+                          <v-divider class="my-2"></v-divider>
+                          <v-list-item class="py-0">
+                            <v-list-item-title>
+                              루나 → 테라: ABC ⮕ BAC
+                            </v-list-item-title>
+                          </v-list-item>
+                        </v-list>
+                      </v-card-text>
+                    </v-card>
+                    <v-card variant="elevated" color="brown">
+                      <v-card-text>
+                        <p class="mb-2">
+                          <b>안티스펠</b>은 <b>마법 주문</b>의 효과를 원래대로 되돌립니다.
+                        </p>
+                        <v-list bg-color="transparent" density="compact" class="py-0">
+                          <v-list-item class="py-0">
+                            <v-list-item-title>
+                              루나: ABC ⮕ BCA
+                            </v-list-item-title>
+                          </v-list-item>
+                          <v-list-item class="py-0">
+                            <v-list-item-title>
+                              테라 = 루나의 안티스펠
+                            </v-list-item-title>
+                          </v-list-item>
+                          <v-divider class="my-2"></v-divider>
+                          <v-list-item>
+                            <v-list-item-title>
+                              테라: BCA ⮕ ABC
+                            </v-list-item-title>
+                          </v-list-item>
+                        </v-list>
+                      </v-card-text>
+                    </v-card>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn variant="elevated" color="primary" append-icon="mdi-arrow-right" @click="start">
+                      시작하기
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-window-item>
+              <v-window-item v-for="(problem, index) in problems" :key="problem.title" :value="index + 1" :transition="false" :reverse-transition="false">
+                <v-card max-width="720" class="mx-auto" variant="flat">
+                  <v-card-title class="text-h5 font-weight-bold">
+                    {{ problem.title }}
+                  </v-card-title>
+                  <v-card-text>
+                    <v-card class="mb-5" variant="elevated" color="grey-lighten-5">
+                      <v-card-text>
+                        <v-list bg-color="transparent" density="compact" class="py-0">
+                          <v-list-item v-for="(clue, i) in problem.clues" :key="i">
+                            <template #prepend><span class="mr-3">{{ i + 1 }}.</span></template>
+                            <v-list-item-title class="text-wrap">{{ clue }}</v-list-item-title>
+                          </v-list-item>
+                        </v-list>
+                      </v-card-text>
+                    </v-card>
+                    <v-card variant="elevated" color="white">
+                      <v-card-text class="pb-0">
+                        <p class="text-h6 mb-5">Q. {{ problem.question }}</p>
+                        <v-text-field
+                          v-model="answers[index]"
+                          label="정답"
+                          variant="outlined"
+                          :maxlength="problem.length"
+                          autocomplete="off"
+                          autocapitalize="characters"
+                          @keyup.enter="check(index)"
+                        ></v-text-field>
+                        <v-alert v-if="feedback[index]" :type="solved[index] ? 'success' : 'error'" variant="tonal" class="mb-4">
+                          {{ feedback[index] }}
+                        </v-alert>
+                      </v-card-text>
+                      <v-card-actions v-if="!solved[index]">
+                        <v-spacer></v-spacer>
+                        <v-btn color="green" variant="elevated" @click="check(index)">정답 확인</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn v-if="solved[index]" variant="elevated" color="primary" append-icon="mdi-arrow-right" @click="next">
+                      다음으로
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-window-item>
+              <v-window-item :value="problems.length + 1" :transition="false" :reverse-transition="false">
+                <v-card max-width="720" class="mx-auto text-center" variant="flat">
+                  <v-card-title class="text-h4">
+                    만든이
+                  </v-card-title>
+                  <v-card-text>
+                    <v-btn variant="text" href="https://theeluwin.github.io" target="_blank">@theeluwin</v-btn>
+                  </v-card-text>
+                  <v-card-actions class="justify-center">
+                    <v-btn prepend-icon="mdi-restart" variant="elevated" color="primary" @click="restart">처음으로</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-window-item>
+            </v-window>
+          </v-container>
+        </v-main>
+      </v-app>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.min.js"></script>
+    <script>
+      const { createApp, ref } = Vue;
+      const { createVuetify } = Vuetify;
+      const salt = "spellogic";
+      const problems = [
+        {
+          title: "문제 1",
+          clues: [
+            "루나: ABC ⮕ BCA",
+            "루나 → 테라: ABC ⮕ ACB"
+          ],
+          question: "테라: ABC ⮕ ?",
+          length: 3,
+          answerHash: "889314d88ba2f0bf9044ef2bcf8806ba51c01877730d41a1ba8d8b1fb3cf5a15"
+        },
+        {
+          title: "문제 2",
+          clues: [
+            "루나 → 테라: ABCD ⮕ CADB",
+            "테라 → 루나: ABCD ⮕ BDAC",
+            "루나 → 솔 → 루나: ABCD ⮕ DCBA",
+            "루나 → 루나: ABCD ⮕ ABCD"
+          ],
+          question: "루나 → 테라 → 솔: ABCD ⮕ ?",
+          length: 4,
+          answerHash: "47d1fdd1a293d0eb2ce3a49430fe26bf8a284c608d80706bdafb0361fcdf303e"
+        },
+        {
+          title: "문제 3",
+          clues: [
+            "솔: ABCDE ⮕ AE???",
+            "솔 → 솔: ABCDE ⮕ ADE??",
+            "루나 → 솔: ABCDE ⮕ AECDB",
+            "솔 → 테라: ABCDE ⮕ DCBAE"
+          ],
+          question: "솔 → 루나 → 테라: ABCDE ⮕ ?",
+          length: 5,
+          answerHash: "7e231e7cb00ab938e56fd4c4a3fa957c21fac57fc8b757efca86f087baec6f5d"
+        },
+        {
+          title: "문제 4",
+          clues: [
+            "세 마법 주문은 서로 다르다.",
+            "세 마법 주문 중 하나는 자기 자신의 안티스펠이고, 나머지 둘은 서로가 안티스펠이다.",
+            "루나 → 테라 = 테라 → 솔",
+            "테라 → 루나 → 테라: ABCDE ⮕ BAECD"
+          ],
+          question: "솔 → 테라 → 루나 → 솔 → 테라: ABCDE ⮕ ?",
+          length: 5,
+          answerHash: "f43c3255b004d257724a15e2640c73fba6cf5098b037ef100d9496d9b433d32f"
+        },
+        {
+          title: "문제 5",
+          clues: [
+            "네 마법 주문 중 둘은 자기 자신이 안티스펠이고, 나머지 둘은 서로가 안티스펠이다.",
+            "자기 자신이 안티스펠인 두 마법 주문은 순서를 바꿔도 결과가 같다.",
+            "네 마법 주문 중 단 하나만 나머지 세 마법 주문 모두와 순서를 바꿔도 결과가 같다.",
+            "루나는 오직 테라와만 순서를 바꿔도 결과가 같고, 둘은 서로의 안티스펠이 아니다.",
+            "루나 → 테라: ABCDE ⮕ BACDE"
+          ],
+          question: "솔 → 테라 → 녹스 → 루나: ABCDE ⮕ ?",
+          length: 5,
+          answerHash: "b44ea165daecdd4aef9afec58653514af5707416a48163009dd6e540cd85c0ed"
+        }
+      ];
+      createApp({
+        setup() {
+          const page = ref(0);
+          const answers = ref(problems.map(() => ''));
+          const feedback = ref(problems.map(() => ''));
+          const solved = ref(problems.map(() => false));
+          async function sha256(value) {
+            const bytes = new TextEncoder().encode(value);
+            const digest = await crypto.subtle.digest('SHA-256', bytes);
+            return [...new Uint8Array(digest)]
+              .map(b => b.toString(16).padStart(2, '0'))
+              .join('');
+          }
+          async function check(index) {
+            const value = (answers.value[index] || "").toUpperCase().replace(/\s+/g, "")
+            if (!value) {
+              feedback.value[index] = "정답을 입력하세요.";
+              solved.value[index] = false;
+              return;
+            }
+            const hash = await sha256(`${index}:${salt}:${value}`);
+            console.log(hash);
+            solved.value[index] = (hash === problems[index].answerHash);
+            feedback.value[index] = solved.value[index] ? "맞았습니다!" : "틀렸습니다...";
+          }
+          function start() {
+            page.value = 1;
+            window.scrollTo({ top: 0, behavior: 'instant' });
+          }
+          function next() {
+            page.value += 1;
+            window.scrollTo({ top: 0, behavior: 'instant' });
+          }
+          function restart() {
+            answers.value = problems.map(() => '');
+            feedback.value = problems.map(() => '');
+            solved.value = problems.map(() => false);
+            page.value = 0;
+            window.scrollTo({ top: 0, behavior: 'instant' });
+          }
+          return { page, problems, answers, feedback, solved, check, start, next, restart };
+        }
+      }).use(createVuetify()).mount('#app');
+      console.log("[제이미] salt가 있으니 rainbow table은 안먹히겠지만 bruteforce로는 금방 정답을 알아낼 수 있을 것입니다.");
+      console.log("[제이미] 그러나 어차피 정답이 중요한건 아니죠. 스스로 완벽한 풀이를 알아내는 부분이 재밌는 부분입니다.");
+    </script>
+  </body>
+</html>
